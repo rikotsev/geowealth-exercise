@@ -11,19 +11,6 @@ public class Main {
 
     private static final boolean ENABLE_VALIDATION = true;
 
-    record Result(Set<String> words, long timeInMilliseconds) {
-        @Override
-        public String toString() {
-            return String.format("""
-                    timeInMilliseconds = %d\n
-                    Words: [
-                    %s
-                    ]
-                    """, timeInMilliseconds, String.join("\n", words));
-        }
-    }
-
-
     public static void main(String[] args) {
         try {
             final Result result = exercise();
@@ -39,42 +26,33 @@ public class Main {
 
         final long start = System.currentTimeMillis();
 
-        final Set<String> input = new HashSet<>();
-        final Set<String> check = new HashSet<>();
+        final Set<String> check = new HashSet<>(words);
         final Set<String> result = new HashSet<>();
         final Map<String, List<String>> validation = new HashMap<>();
+
         //n
         for(final String word : words) {
             //9^2
             if(word.length() == 9 && (word.contains("I") || word.contains("A"))) {
-                input.add(word);
-            }
-            else if(word.length() < 9) {
-                check.add(word);
-            }
-        }
-
-        //m
-        for(final String word : input) {
-            //9
-            for(int i = 0; i < word.length(); i++) {
                 final List<String> composingWords = new ArrayList<>();
-                // 8 * 5040
-                if(matches(new StringBuilder(word).deleteCharAt(i).toString(), check, composingWords)) {
+
+                if(matches(word, check, composingWords)) {
                     if(ENABLE_VALIDATION) {
                         validation.put(word, composingWords);
                     }
                     result.add(word);
-                    break;
                 }
             }
         }
 
         final long end = System.currentTimeMillis();
-        System.out.println("validation = " + validation + "\n");
+        if(ENABLE_VALIDATION) {
+            System.out.println("validation = " + validation + "\n");
+        }
         return new Result(result, end - start);
     }
 
+    //9!
     private static boolean matches(final String word, final Set<String> check, List<String> composingWords) {
         if(word.length() == 1 && ("A".equals(word) || "I".equals(word))) {
             //1
@@ -85,17 +63,17 @@ public class Main {
         }
 
         if(word.length() > 1 && check.contains(word)) {// 1
-            //8
+            //9
             for(int i = 0; i < word.length(); i++) {
+                //              a1 a2 ... a8 - 8
+                //              |
                 //          b1 b2 ... b7 - 7
                 //          |
-                //     c1 c2 ... c6 - 6 * 7 = 42
-                //     .... 5 * 6 * 7 = 210
-                //     .... 4 * 5 * 6 * 7 = 840
-                //     .... 3 * 4 * 5 * 6 * 7 = 2520
-                //     .... 2 * 3 * 4 * 5 * 6 * 7 = 5040
-                //     1
-                //=
+                //     c1 c2 ... c6 - 6 * 7 * 8
+                //     .... 5 * 6 * 7 * 8
+                //     .... 4 * 5 * 6 * 7 * 8
+                //     .... 3 * 4 * 5 * 6 * 7 * 8
+                //     .... 2 * 3 * 4 * 5 * 6 * 7 * 8
                 //
                 if(matches(new StringBuilder(word).deleteCharAt(i).toString(), check, composingWords)) {
                     if(ENABLE_VALIDATION) {
@@ -114,6 +92,18 @@ public class Main {
 
         try(final BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()))) {
             return br.lines().skip(2).collect(Collectors.toSet());
+        }
+    }
+
+    record Result(Set<String> words, long timeInMilliseconds) {
+        @Override
+        public String toString() {
+            return String.format("""
+                    timeInMilliseconds = %d\n
+                    Words: [
+                    %s
+                    ]
+                    """, timeInMilliseconds, String.join("\n", words));
         }
     }
 
