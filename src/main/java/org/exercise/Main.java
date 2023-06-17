@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    private static final boolean ENABLE_VALIDATION = true;
+    private static final boolean ENABLE_VALIDATION = false;
 
     public static void main(String[] args) {
         try {
